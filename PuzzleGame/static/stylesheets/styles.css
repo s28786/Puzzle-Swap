@@ -1,0 +1,177 @@
+:root {
+    --cell-size: 2rem;
+    --grid-size-height: 5;
+    --grid-size-width: 7;
+}
+body{
+    width: 100vw;
+    font-family: "VT323", system-ui;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.5rem;
+    background-image: url("/static/images/sokoban-imgs/global-bg.png");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+.img-bg {
+  opacity: 1;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+    z-index: -1;
+
+}
+
+form *{
+    text-align: center;
+    margin: 0.5rem auto !important;
+
+}
+
+
+.parent{
+    text-align: center;
+}
+
+.board{
+    display: grid;
+    margin:auto ;
+    grid-template-columns: repeat(var(--grid-size-width), var(--cell-size));
+    grid-template-rows: repeat(var(--grid-size-height), var(--cell-size));
+}
+.grid-parent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh; /* This will make the parent container take up the full height of the viewport */
+}
+.cell {
+    height: var(--cell-size) ;
+    width: var(--cell-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px; /* Adjust font size as needed */
+    background-color: #ddd;
+    background-size: contain;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#finish-post {
+    text-align: center;
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+
+    border: 2px solid #ffffff;
+    z-index: 3;
+    padding: 1rem;
+    border-radius: 1rem;
+}
+#finish-post *{
+    color: white;
+}
+.finish-grid{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 1fr;
+    margin: 0.3rem 0;
+}
+.finish-grid *{
+    height: 100%;
+    text-align: center;
+
+}
+.finish-grid div a{
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+#overlay {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0.6;
+    z-index: 2;
+}
+
+.leaderboard-table {
+    width: 70%;
+    text-align: center;
+    font-size: 2rem;
+    margin: auto;
+}
+.leaderboard-table *{
+    font-weight: lighter;
+    text-align: center;
+}
+
+.title {
+    text-align: center;
+    padding: 0.7rem 0;
+}
+.record{
+    width: 100%;
+    height: 70vh;
+    overflow: auto;
+}
+
+.nav-game *{
+    font-size: 1.5rem;
+
+}
+.nav-game li{
+    display: inline;
+    margin: 0 0.5rem;
+}
+.nav-game li *{
+    margin: 0;
+    height: 100%;
+}
+
+.parent{
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    color: white;
+}
+.playerName{
+    color: white;
+}
+
+.navbar{
+    background-color: #2a542a;
+    border: 1px solid white;
+
+}
+
+.navbar-brand{
+    font-size: 1.8rem;
+    margin: 0 0.5rem;
+}
+.navbar-nav *{
+    text-align: center;
+}
+
+.list-group-item{
+    background-color: #2b4b29;
+    color: white;
+}
+
+.list-body{
+    width: 50%;
+    margin: 1rem auto;
+}
+
+#levels-container{
+    height: 42vh;
+    overflow: auto;
+}

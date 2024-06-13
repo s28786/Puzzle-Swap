@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href={{ url_for('static', filename='stylesheets/styles.css') }}>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="bg-success-subtle" id="overlay"></div>
+<div class="bg-success" id="finish-post">
+    <h1>Game Finished</h1>
+    <p>Your Moves:</p>
+    <div class="container text-center">
+
+      <div class="row finish-grid" >
+        <div class="col">
+          <a  id="reset-button" class="btn  btn-outline-light">Play Again</a>
+        </div>
+        <div class="col">
+          <a href="/game/{{ next_level_id }}" id="next-button" class="btn  btn-outline-light">Next Level</a>
+        </div>
+        <div class="col">
+           <a href="/levels-showcase" class="btn  btn-outline-light">Back To Levels</a>
+        </div>
+          <div class="col">
+           <a  id="save-button" class="btn  btn-outline-light">Save Record</a>
+        </div>
+      </div>
+</div>
+</div>
+<div class="parent">
+
+<nav class="navbar navbar-expand-lg " style="margin-bottom: 1rem">
+  <div class="container-fluid">
+      <div class="navbar-brand" >Sokoban</div>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class=" collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="nav-game navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+
+          <a class="nav-link" href="/levels-showcase">Levels</a>
+        </li>
+
+        <li class="nav-item">
+          <div class="navbar-text" style="text-align: center" id="currentPlayer">Current Player: {{ current_player }}</div>
+        </li>
+        <li class="nav-item">
+          <div class="navbar-text" style="text-align: center" id="">Level: {{ current_level_id }}</div>
+        </li>
+        <li class="nav-item">
+          <div class="navbar-text" id="moveDiv">Moves: 0</div>
+        </li>
+
+
+      </ul>
+        <div class="nav-item ml-auto">
+           <a id="reset-btn" class="btn btn-success" >Reset</a>
+        </div>
+    </div>
+  </div>
+</nav>
+
+
+<div class="grid-parent">
+    <div class="board" id="board">
+        {% for row in range(grid_width) %}
+                {% for col in range(grid_height) %}
+        <div class="cell" ></div>
+        {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+<script>
+
+
+
+            const cells = [];
+            let grid_height = {{ grid_height }};
+            let grid_width = {{ grid_width }};
+            let min;
+            if(grid_width > grid_height){
+                min = grid_height;
+            }
+            else{
+                min = grid_width;
+            }
+            document.querySelectorAll('.board .cell').forEach((cell, index) => {
+            const row = Math.floor(index / grid_width);
+            const col = index % grid_width;
+
+            if (!cells[row]) cells[row] = [];
+            cells[row][col] = cell;
+            });
+
+            const cellSize = Math.floor(80/ min) + 'vh';
+
+
+            //document.documentElement.style.setProperty('--grid-size-width', grid_width);
+            //document.documentElement.style.setProperty('--grid-size-height', grid_height);
+
+            document.documentElement.style.setProperty('--cell-size', cellSize);
+            window.addEventListener('resize', function(event) {
+            document.documentElement.style.setProperty('--cell-size', cellSize);
+            }, true);
+
+
+            box_cods = {{ boxes }};
+            player_cod = {{ player }};
+            goal_cods = {{ goals }};
+            wall_cods = {{ walls }};
+            current_level_id = {{ current_level_id }};
+            next_level_id = {{ next_level_id }};
+
+            let nextButton = document.getElementById("next-button");
+            if(current_level_id === next_level_id){
+                nextButton.classList.add("disabled");
+                nextButton.textContent = "Max Reached";
+            } else {
+                nextButton.classList.remove("disabled");
+                nextButton.textContent = "Next Level";
+            }
+
+            function updateBoard(boxes, player, goals, walls) {
+                for (let i = 0; i < cells.length; i++) {
+                        for (let j = 0; j < cells[i].length; j++) {
+                            cells[i][j].style.backgroundColor = "#ddd";
+                        }
+                    }
+                    for (let i = 0; i < cells.length; i++) {
+                        for (let j = 0; j < cells[i].length; j++) {
+
+                            let changed = false;
+                            for (let k = 0; k < walls.length; k++) {
+                                if (walls[k][0] === i && walls[k][1] === j) {
+                                    cells[i][j].style.backgroundImage = "url(/static/images/sokoban-imgs/wall-2.png)";
+                                    changed = true;
+                                }
+                            }
+                            for (let k = 0; k < goals.length; k++) {
+                                if (goals[k][0] === i && goals[k][1] === j) {
+                                    cells[i][j].style.backgroundImage = "url(/static/images/sokoban-imgs/goal.png)";
+                                    changed = true;
+                                }
+                            }
+                            for (let k = 0; k < boxes.length; k++) {
+                                if (boxes[k][0] === i && boxes[k][1] === j) {
+                                    cells[i][j].style.backgroundImage = "url(/static/images/sokoban-imgs/box.png)";
+                                    changed = true;
+                                }
+                            }
+
+                            if (player[0] === i && player[1] === j) {
+                                cells[i][j].style.backgroundImage = "url(/static/images/sokoban-imgs/player.png)";
+                                changed = true;
+                            }
+                            if (!changed) {
+                                cells[i][j].style.backgroundImage = "url(/static/images/sokoban-imgs/background.png)";
+                            }
+                        }
+                    }
+            }
+            updateBoard(box_cods, player_cod, goal_cods, wall_cods);
+            let inGame = true;
+            const delay = 50;
+            let canPress = true;
+            let direction = "right";
+            document.addEventListener('keypress', function(event) {
+            if (canPress && inGame) {
+                let key = event.key;
+                console.log(key);
+                if (key === "ArrowRight" || key === "d" ) {
+                    direction = "right";
+                }
+                else if (key === "ArrowLeft" || key === "a") {
+                    direction = "left";
+                }
+                else if (key === "ArrowUp" || key === "w") {
+                    direction = "up";
+                }
+                else if (key === "ArrowDown" || key === "s") {
+                    direction = "down";
+                } else {
+                    return;
+                }
+
+                canPress = false;
+                sendMoveUpdateRequest();
+                setTimeout(() => {
+                    canPress = true;
+                }, delay);
+            } else {
+                event.preventDefault();
+            }
+        });
+
+
+
+
+            function sendMoveUpdateRequest(){
+
+                fetch('/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    direction: direction,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const result = data.result
+                    const name = data.name;
+                    const boxes = data.boxes;
+                    const goals = data.goals;
+                    const player = data.player;
+                    const walls = data.walls;
+                    const moves = data.moves;
+                    updateBoard(boxes, player, goals, walls);
+
+                    document.getElementById("moveDiv").innerHTML = "Move: " + moves;
+                //check finish game
+                if(result === false){
+                    inGame = false;
+                    endGame(name, data.moves);
+                }
+
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            }
+
+            function endGame( name, point) {
+                const overlay = document.getElementById("overlay");
+                const endDiv = document.getElementById("finish-post");
+
+                endDiv.style.display = "block";
+                overlay.style.display = "block";
+
+                endDiv.children[1].innerHTML = "Player: " +name+ " - Points: " + point;
+
+
+
+
+            }
+
+            document.getElementById("save-button").addEventListener("click", () => {
+                saveRecord();
+                //add class to button
+                document.getElementById("save-button").classList.add("disabled");
+            });
+            function saveRecord(){
+                fetch("/save", {
+                method: "POST"})
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    console.log("Data saved");
+                })
+                .catch(error => {
+                    console.error("There was a problem with the fetch operation:", error);
+                });
+            }
+
+
+            document.getElementById("reset-button").addEventListener("click", () => {
+                const overlay = document.getElementById("overlay");
+                const endDiv = document.getElementById("finish-post");
+                endDiv.style.display = "none";
+                overlay.style.display = "none";
+                resetLevel();
+
+            });
+
+
+            //set action for reset-btn to go to /reset-cur
+            document.getElementById("reset-btn").addEventListener("click", () => {
+                const overlay = document.getElementById("overlay");
+                const endDiv = document.getElementById("finish-post");
+                endDiv.style.display = "none";
+                overlay.style.display = "none";
+                resetLevel();
+            });
+
+            function resetLevel(){
+
+               fetch('/reset-cur', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    direction: direction,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                inGame = true;
+                canPress = true;
+                const name = data.name;
+                const boxes = data.boxes;
+                const goals = data.goals;
+                const player = data.player;
+                const walls = data.walls;
+                const moves = data.moves;
+                updateBoard(boxes, player, goals, walls);
+                document.getElementById("moveDiv").innerHTML = "Move: " + moves;
+                });
+            }
+
+
+        </script>
+</body>
+</html>
