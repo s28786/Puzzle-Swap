@@ -175,3 +175,8 @@ form *{
     height: 42vh;
     overflow: auto;
 }
+
+#levels-container-showcase{
+    height: 80vh;
+    overflow: auto;
+}

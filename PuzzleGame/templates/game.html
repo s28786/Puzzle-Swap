@@ -74,7 +74,9 @@
 
 
 <div class="grid-parent">
+
     <div class="board" id="board">
+
         {% for row in range(grid_width) %}
                 {% for col in range(grid_height) %}
         <div class="cell" ></div>
@@ -92,6 +94,7 @@
             const cells = [];
             let grid_height = {{ grid_height }};
             let grid_width = {{ grid_width }};
+
             let min;
             if(grid_width > grid_height){
                 min = grid_height;
@@ -99,19 +102,22 @@
             else{
                 min = grid_width;
             }
+
             document.querySelectorAll('.board .cell').forEach((cell, index) => {
             const row = Math.floor(index / grid_width);
             const col = index % grid_width;
-
+            console.log("row " + row);
             if (!cells[row]) cells[row] = [];
             cells[row][col] = cell;
+
             });
+            //print cells array
 
             const cellSize = Math.floor(80/ min) + 'vh';
 
 
-            //document.documentElement.style.setProperty('--grid-size-width', grid_width);
-            //document.documentElement.style.setProperty('--grid-size-height', grid_height);
+            document.documentElement.style.setProperty('--grid-size-width', grid_width);
+            document.documentElement.style.setProperty('--grid-size-height', grid_height);
 
             document.documentElement.style.setProperty('--cell-size', cellSize);
             window.addEventListener('resize', function(event) {

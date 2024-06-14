@@ -44,7 +44,6 @@ class Sokoban:
         if level_id is not None:
             self.load_level(level_id)
 
-
     def load_level(self, level_id):
 
         level = get_level(level_id)

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
-from packages.mongodb import load_levels, get_number_of_levels, insert_level_record_data, get_all_record_for_a_level_ranked
+from packages.mongodb import load_levels, get_number_of_levels, insert_level_record_data, \
+    get_all_record_for_a_level_ranked
 from packages.game import Sokoban
 
 app = Flask(__name__)
@@ -21,6 +22,7 @@ current_level_id = 0
 
 @app.route('/')
 def index():
+    load_levels()
     global player_name
     global game
     player_name = ''
@@ -56,12 +58,14 @@ def get_level():
     if request.method == 'GET':
         return jsonify({'levelNum': get_number_of_levels()})
 
+
 @app.route('/get-leaderboard', methods=['POST'])
 def get_leaderboard():
     level = request.json['level']
 
     if request.method == 'POST':
         return jsonify({'leaderboard': get_all_record_for_a_level_ranked(int(level))})
+
 
 @app.route('/game/<int:level_id>')
 def game(level_id):
@@ -77,6 +81,7 @@ def game(level_id):
 
     height = len(game.map)
     width = len(game.map[0])
+
     if (current_level_id < get_number_of_levels()):
         next_level_id = current_level_id + 1
     else:
@@ -149,8 +154,11 @@ def save():
     except:
         return "Error", 500
 
+
 @app.route('/leaderboard')
 def leaderboard():
     return render_template('leaderboard.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
